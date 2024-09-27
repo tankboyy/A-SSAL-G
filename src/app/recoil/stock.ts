@@ -1,6 +1,11 @@
 import {atom} from "recoil";
 
-const stockListState = atom({
+export const stockListState = atom({
 	key: "stockListState",
 	default: [],
+});
+
+export const selectedStockState = atom<TCoin | null>({
+	key: "selectedStockState",
+	default: null,
 });

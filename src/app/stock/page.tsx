@@ -1,12 +1,11 @@
 'use client';
 
 import {useEffect, useRef, useState, memo} from "react";
-import {v4} from "uuid";
-import {SignJWT} from 'jose';
-import {io} from "socket.io-client";
+import {useRecoilState} from "recoil";
+import {selectedStockState} from "@/app/recoil/stock";
+import Chart from "@/app/stock/components/Chart";
 
 const CoinTab = memo(function coinTab({code, price: price2}: any) {
-	console.log(`Rendering CoinItem: ${code}`);
 	const [price, setPrice] = useState(price2);
 	const [priceChange, setPriceChange] = useState<null | 'up' | 'down'>(null);
 	useEffect(() => {
@@ -27,15 +26,22 @@ const CoinTab = memo(function coinTab({code, price: price2}: any) {
 		}
 	}, [price, price2]);
 	return (
-		<div>
-			<div>
-				{code}
+		<div className="flex space-x-2">
+			<div className="w-[94px]">
+				<span className="text-xs text-gray-500">
+					{code}
+				</span>
+				<span>
+				</span>
 			</div>
-			<div
-				className={`transition-colors duration-500 ${priceChange === 'up' ? 'bg-green-500 text-white' : ''} ${priceChange === 'down' ? 'bg-red-500 text-white' : ''}`}
-			>
+			<div className="w-[98px]">
+				<span
+					className={`text-right transition-colors duration-500 ${priceChange === 'up' ? 'bg-green-500 text-white' : ''} ${priceChange === 'down' ? 'bg-red-500 text-white' : ''}`}>
+
 				{price}
+				</span>
 			</div>
+			<div className="w-[58px]"></div>
 		</div>
 	);
 });
@@ -44,6 +50,7 @@ export default function Page() {
 	const [titleNames, setTitleNames] = useState<TCoinTitle[]>();
 	const [coins, setCoins] = useState<TCoins>();
 
+	const [selectedStock, setSelectedStock] = useRecoilState(selectedStockState);
 
 	const socket = useRef<WebSocket | null>(null);
 
@@ -55,7 +62,6 @@ export default function Page() {
 			).then((response) => response.json())
 				.then((data: TCoinTitle[]) => {
 					const resolveData = data.filter((item) => item.market.includes("KRW"));
-					console.log(resolveData);
 					setTitleNames(resolveData);
 				});
 		};
@@ -100,25 +106,9 @@ export default function Page() {
 						...prevCoins,
 						[message.code]: message // 코인 심볼을 키로 사용해 상태를 업데이트
 					}));
-					// console.log(message);
 				});
 			};
 			socket.current.onclose = () => console.log("closed!");
-			// const ws = new WebSocket("wss://api.upbit.com/websocket/v1", {
-			// 	headers: {
-			// 		Authorization: `Bearer ${jwtToken}`,
-			// 	}
-			// });
-			// ws.on("open", () => {
-			// 	console.log("open");
-			// 	ws.send('[{"ticket":"test example"},{"type":"myTrade"}]');
-			// 	// ws.send('[{"ticket":"UNIQUE_TICKET"},{"type":"trade","codes":["KRW-BTC"]}]');
-			// });
-			// ws.on("error", console.error);
-			//
-			// ws.on("message", (data) => console.log(data.toString()));
-			//
-			// ws.on("close", () => console.log("closed!"));
 		})();
 	}, [titleNames]);
 
@@ -130,20 +120,38 @@ export default function Page() {
 
 	return (
 		<main className="flex">
-			<div className="w-48">
+			<div>
 				<h1>Stock</h1>
-				{Object.values(coins || {}).map((coin) => (
-					<CoinTab code={coin.code} price={coin.trade_price}></CoinTab>
-				))}
-				{/*{titleNames?.map((item, index) => (*/}
-				{/*	<div key={index} onClick={() => onClickTitle(item)} className="cursor-pointer">*/}
-				{/*		{item.korean_name}*/}
-				{/*	</div>*/}
-				{/*))}*/}
+				<table className="w-[400px] flex flex-col">
+					{Object.values(coins || {}).map((coin) => (
+						<th onClick={() => setSelectedStock(coin)}>
+							<CoinTab code={coin.code} price={coin.trade_price}></CoinTab>
+						</th>
+					))}
+				</table>
 			</div>
 			<div className="flex-1">
-				hihi
+				<CoinDetailTab/>
 			</div>
 		</main>
 	);
 }
+
+
+const CoinDetailTab = memo(function coinDetailTab() {
+	const [selectedStock, setSelectedStock] = useRecoilState(selectedStockState);
+
+
+	if (!selectedStock) return;
+
+	return (
+		<div>
+			{selectedStock && selectedStock.code}
+			<div className="flex space-x-4">
+				<Chart/>
+
+			</div>
+		</div>
+	);
+
+});

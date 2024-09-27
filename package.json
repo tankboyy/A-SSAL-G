@@ -10,8 +10,11 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.56.2",
+    "install": "^0.13.0",
     "jose": "^5.9.2",
+    "klinecharts": "^9.8.10",
     "next": "14.2.9",
+    "npm": "^10.8.3",
     "react": "^18",
     "react-dom": "^18",
     "recoil": "^0.7.7",
