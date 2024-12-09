@@ -2,7 +2,7 @@
 
 import {useEffect, useRef, useState, memo} from "react";
 import {useRecoilState} from "recoil";
-import {selectedStockState} from "@/app/recoil/stock";
+import {selectedStockState} from "@/recoil/stock";
 import Chart from "@/app/stock/components/Chart";
 
 const CoinTab = memo(function coinTab({code, price: price2}: any) {
@@ -49,7 +49,6 @@ const CoinTab = memo(function coinTab({code, price: price2}: any) {
 export default function Page() {
 	const [titleNames, setTitleNames] = useState<TCoinTitle[]>();
 	const [coins, setCoins] = useState<TCoins>();
-
 	const [selectedStock, setSelectedStock] = useRecoilState(selectedStockState);
 
 	const socket = useRef<WebSocket | null>(null);
@@ -124,7 +123,7 @@ export default function Page() {
 				<h1>Stock</h1>
 				<table className="w-[400px] flex flex-col">
 					{Object.values(coins || {}).map((coin) => (
-						<th onClick={() => setSelectedStock(coin)}>
+						<th onClick={() => setSelectedStock(coin)} key={coin.code}>
 							<CoinTab code={coin.code} price={coin.trade_price}></CoinTab>
 						</th>
 					))}
@@ -140,8 +139,6 @@ export default function Page() {
 
 const CoinDetailTab = memo(function coinDetailTab() {
 	const [selectedStock, setSelectedStock] = useRecoilState(selectedStockState);
-
-
 	if (!selectedStock) return;
 
 	return (

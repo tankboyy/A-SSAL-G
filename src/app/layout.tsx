@@ -1,6 +1,6 @@
 import type {Metadata} from "next";
 import "./globals.css";
-import Roots from "@/app/components/roots";
+import Roots from "@/components/roots";
 
 
 export const metadata: Metadata = {
